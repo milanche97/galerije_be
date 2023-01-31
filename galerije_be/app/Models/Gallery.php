@@ -26,4 +26,26 @@ class Gallery extends Model
         return $this->hasMany(Comment::class);
     }
 
+    public function scopeSearchByTerm($query, $term = "", $user_id = "")
+    {
+        $query->with('user', 'images', 'comments');
+
+        if ($user_id) {
+            $query = $query->where('user_id', '=', $user_id);
+        }
+
+        if (!$term && !$user_id) {
+            return $query;
+        }
+
+        return  $query->where(function ($querry2) use ($term) {
+            $querry2->where('title', 'like', "%{$term}%")
+                ->orWhere('description', 'like', "%{$term}%")
+                ->orWhereHas('user', function ($querry3) use ($term) {
+                    $querry3->where('first_name', 'like', "%{$term}%")
+                        ->orWhere('last_name', 'like', "$%{$term}%");
+                });
+        });
+    }
+
 }
