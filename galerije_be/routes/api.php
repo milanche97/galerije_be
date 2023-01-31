@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\CommentsController;
 use App\Http\Controllers\GalleryController;
+use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -38,4 +39,5 @@ Route::group([
     Route::delete('/comments/{id}', [CommentsController::class, 'destroy']);
 
     Route::get('/user/{id}', [UserController::class, 'show']);
+    Route::get('/users', [UserController::class, 'index']);
 });
