@@ -25,23 +25,23 @@ class GalleriesController extends Controller
 
         return $gallery;
     }
-
     public function store(GalleryRequest $request)
     {
         $gallery = new Gallery();
         $gallery->title = $request->title;
         $gallery->description = $request->description;
-        $gallery->user_id = optional(Auth::user())->id;
+        $gallery->user_id = auth()->user()->id;
         $gallery->save();
 
-        foreach ($request->urls as $url) {
-            $image = new Image();
-            $image->url = $url;
-            $image->gallery_id = $gallery->id;
-            $image->save();
+        $imgs = [];
+        foreach ($request->images as $img) {
+            $imgs[] = new Image($img);
         }
+        $gallery->images()->saveMany($imgs);
+
         return $this->show($gallery->id);
     }
+
     public function update(GalleryRequest $request, $id)
     {
         $gallery = Gallery::find($id);
@@ -51,15 +51,48 @@ class GalleriesController extends Controller
         $gallery->save();
 
         $gallery->images()->delete();
-        foreach ($request->urls as $url) {
-            $image = new Image();
-            $image->url = $url;
-            $image->gallery_id = $gallery->id;
-            $image->save();
+        $imgs = [];
+        foreach (request('images') as $img) {
+            $imgs[] = new Image($img);
         }
+        $gallery->images()->saveMany($imgs);
 
         return $this->show($gallery->id);
     }
+    // public function store(GalleryRequest $request)
+    // {
+    //     $gallery = new Gallery();
+    //     $gallery->title = $request->title;
+    //     $gallery->description = $request->description;
+    //     $gallery->user_id = optional(Auth::user())->id;
+    //     $gallery->save();
+
+    //     foreach ($request->urls as $url) {
+    //         $image = new Image();
+    //         $image->url = $url;
+    //         $image->gallery_id = $gallery->id;
+    //         $image->save();
+    //     }
+    //     return $this->show($gallery->id);
+    // }
+    // public function update(GalleryRequest $request, $id)
+    // {
+    //     $gallery = Gallery::find($id);
+    //     $gallery->title = $request->title;
+    //     $gallery->description = $request->description;
+    //     $gallery->user_id = auth()->user()->id;
+    //     $gallery->save();
+
+    //     $gallery->images()->delete();
+    //     foreach ($request->urls as $url) {
+    //         $image = new Image();
+    //         $image->url = $url;
+    //         $image->gallery_id = $gallery->id;
+    //         $image->save();
+    //     }
+
+    //     return $this->show($gallery->id);
+    // }
 
     public function destroy($id)
     {
